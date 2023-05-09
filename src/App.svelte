@@ -1,45 +1,54 @@
 <script>
-  import svelteLogo from './assets/svelte.svg'
-  import Counter from './lib/Counter.svelte'
+	import { products } from "./assets/products.json";
+	import { scale } from "svelte/transition";
+	import { flip } from "svelte/animate";
+	import ProductCard from "./lib/ProductCard.svelte";
+	import FilterBox from "./lib/FilterBox.svelte";
+
+	let filteredProducts = products;
+
+	function applyFilters(event) {
+		let filterCategories = event.detail;
+		filteredProducts = filterCategories.length
+			? products.filter((item) => filterCategories.includes(item.category))
+			: products;
+	}
+
+	// let filteredProducts = [];
+	// for (let i = 0; i < products.length; i++) {
+	// 	let item = products[i];
+	// 	if (filterCategories.includes(item.category)) {
+	// 		filteredProducts.push(item);
+	// 	}
+	// }
 </script>
 
-<main>
-  <div>
-    <a href="https://vitejs.dev" target="_blank" rel="noreferrer"> 
-      <img src="/vite.svg" class="logo" alt="Vite Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank" rel="noreferrer"> 
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
-  </div>
-  <h1>Vite + Svelte</h1>
-
-  <div class="card">
-    <Counter />
-  </div>
-
-  <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!
-  </p>
-
-  <p class="read-the-docs">
-    Click on the Vite and Svelte logos to learn more
-  </p>
-</main>
+<div class="layout">
+	<div class="sidebar">
+		<FilterBox {products} on:update={applyFilters} />
+	</div>
+	<div class="product-list">
+		{#each filteredProducts as item, i (item.id)}
+			<div
+				animate:flip={{ duration: 500, delay: 200 + i * 20 }}
+				out:scale={{ duration: 250, delay: i * 20 }}
+				in:scale={{ duration: 250, delay: 400 + i * 20 }}
+			>
+				<ProductCard product={item} />
+			</div>
+		{/each}
+	</div>
+</div>
 
 <style>
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-  }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
-  }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
-  }
-  .read-the-docs {
-    color: #888;
-  }
+	.layout {
+		display: flex;
+	}
+	.sidebar {
+		margin-top: 10px;
+	}
+	.product-list {
+		display: flex;
+		flex-wrap: wrap;
+	}
 </style>
